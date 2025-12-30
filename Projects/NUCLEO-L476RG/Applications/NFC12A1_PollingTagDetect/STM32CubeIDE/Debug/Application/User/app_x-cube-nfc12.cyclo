@@ -1,0 +1,5 @@
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/app_x-cube-nfc12.c:50:6:MX_X_CUBE_NFC12_Init	1
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/app_x-cube-nfc12.c:74:6:MX_X_CUBE_NFC12_Process	1
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/app_x-cube-nfc12.c:83:6:MX_NFC12_PollingDemo_Init	3
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/app_x-cube-nfc12.c:149:9:BSP_NFC0XCOMM_SendRecv	8
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/app_x-cube-nfc12.c:186:13:BSP_NFC0XCOMM_IRQ_Callback	1

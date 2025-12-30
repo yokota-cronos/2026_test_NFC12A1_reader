@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<IP xmlns="http://mcd.rou.st.com/modules.php?name=mcu" CodeTemplate="app_x-cube-nfc12_h.ftl;app_x-cube-nfc12_c.ftl" DBVersion="V4.0" Name="X-CUBE-NFC12" RootFolder="Packs/STMicroelectronics/X-CUBE-NFC12/1.0.0/" Version="1.0.0" xmlns:ns0="http://www.w3.org/2001/XMLSchema-instance" ns0:schemaLocation="http://mcd.rou.st.com/modules.php?name=mcu ../../../../../../../doc/V4/Development/Specifications/db/thirdPartyDb.xsd">
+    <RefConfig Name="BoardOoExtensionJjNFC">
+	    <ConfigFile Name="NFC_CONF_C"/>
+		<ConfigFile Name="DEMO_H"/>
+		<ConfigFile Name="LOGGER_H"/>
+		<ConfigFile Name="RFAL_PLATFORM_H"/>
+		<ConfigFile Name="ST_ERRNO_H"/>
+		<ConfigFile Name="TIMER_C"/>
+		<ConfigFile Name="TIMER_H"/>
+        <Component Name="BoardOoExtension:NFC:NFC12A1:$BoardOoExtensionJjNFCJjNFC12A1"/>
+        <Defines Name="ST25R500" Type="Cdefine" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1"/>
+    </RefConfig>
+    <RefConfig Name="BoardOoPartJjNFCBoardIface">
+        <Component Name="BoardOoPart:NFCBoardIface:NFC12A1IiIFACE:SPI:$BoardOoPartJjNFCBoardIfaceJjNFC12A1IiIFACE"/>
+    </RefConfig>
+    <RefConfig Name="WirelessJjMIDIiLIBIiNFC12">
+	    <ConfigFile Name="NFC_CONF_H"/> <!-- BMP-->
+		<ConfigFile Name="RFAL_DEFCONFIG_H"/>
+        <Component Name="Wireless:MIDIiLIBIiNFC12:NDEF:$WirelessJjMIDIiLIBIiNFC12JjNDEF"/>
+        <Component Name="Wireless:MIDIiLIBIiNFC12:RFAL:DefaultIiConfig:$WirelessJjMIDIiLIBIiNFC12JjRFAL"/>
+        <Component Name="Wireless:MIDIiLIBIiNFC12:RFAL:CustomIiConfig:$WirelessJjMIDIiLIBIiNFC12JjRFAL"/>
+    </RefConfig>
+    <RefConfig Name="RfalIiConfJjRfalCustomConf">
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiLISTENIiMODE:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiLISTENIiMODE"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiWAKEUPIiMODE:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiWAKEUPIiMODE"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiLOWPOWERIiMODE:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiLOWPOWERIiMODE"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiNFCA:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiNFCA"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiNFCB:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiNFCB"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiNFCF:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiNFCF"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiNFCV:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiNFCV"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiT1T:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiT1T"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiT2T:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiT2T"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiT4T:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiT4T"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiST25TB:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiST25TB"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiST25xV:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiST25xV"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiDYNAMICIiANALOGIiCONFIG:$RfalIiConfJjRfalCustomConfJjRFALIiDYNAMICIiANALOGIiCONFIG"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiDPO:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiDPO"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiISOIiDEP:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiISOIiDEP"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiISOIiDEPIiPOLL:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiISOIiDEPIiPOLL"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiISOIiDEPIiLISTEN:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiISOIiDEPIiLISTEN"/>
+        <Component Name="RfalIiConf:RfalCustomConf:RFALIiFEATUREIiNFCIiDEP:$RfalIiConfJjRfalCustomConfJjRFALIiFEATUREIiNFCIiDEP"/>
+    </RefConfig>
+    <RefConfig Name="DeviceJjNFCIiApplications">
+        <ConfigFile Name="ANALOGCONFIGTBL_NFC12A1_C"/>
+		<ConfigFile Name="DEMO_CE_C"/>
+		<ConfigFile Name="DEMO_POLLING_C"/>
+		<ConfigFile Name="LOGGER_C"/>
+		<ConfigFile Name="NDEF_DEMO_C"/>
+		<ConfigFile Name="NDEF_DUMP_C"/>
+		<ConfigFile Name="NDEF_DUMP_H"/>
+		<ConfigFile Name="UTILS_H"/>
+		<ConfigFile Name="DEMO_CE_H"/>
+	    <ConfigFile Name="NFC12A1_PollingTagDetect_DEMO_C"/>
+		<ConfigFile Name="NFC12A1_PollingTagDetect_DEMO_GV_C"/>
+		<ConfigFile Name="NFC12A1_PollingTagDetect_DEMO_INIT_C"/>
+        <Component Name="NFCIiApplicationsCcDevice:Application:NFC12A1IiPollingTagDetect:$NFCIiApplicationsCcDeviceJjApplication"/>
+        <Component Name="NFCIiApplicationsCcDevice:Application:NFC12A1IiPollingTagDetectNDEF:$NFCIiApplicationsCcDeviceJjApplication"/>
+    </RefConfig>
+    <RefComponent Cclass="BoardOoExtension" Cgroup="NFC" Cversion="1Gg0Gg0">
+        <SubComponent Csub="NFC12A1" Cvariant="true" Cversion="1Gg0Gg0">
+		   	<File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/rfal_analogConfigTbl.h"/>
+		    <File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/rfal_dlmaTbl.h"/>
+            <File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/rfal_dpoTbl.h"/>
+			<File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/rfal_features.h"/>
+			<File Category="source" Condition="" Name="Drivers/BSP/Components/st25r500/rfal_rfst25r500.c" />
+			<File Category="source" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500.c" />
+			<File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500.h"/>
+			<File Category="source" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500_com.c" />
+			<File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500_com.h"/>
+			<File Category="source" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500_dpocr.c" />
+			<File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500_dpocr.h"/>
+			<File Category="source" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500_irq.c" />
+			<File Category="header" Condition="" Name="Drivers/BSP/Components/st25r500/st25r500_irq.h"/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="BoardOoPart" Cgroup="NFCBoardIface" Cversion="1Gg0Gg0">
+        <SubComponent Csub="NFC12A1IiIFACE" Cvariant="I2C:I2C" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Drivers/BSP/NFC12A1/nfc12a1.h"/>
+        </SubComponent>
+        <SubComponent Csub="NFC12A1IiIFACE" Cvariant="SPI:SPI" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Drivers/BSP/NFC12A1/nfc12a1.h"/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="Wireless" Cgroup="MIDIiLIBIiNFC12" Cversion="1Gg0Gg0">
+        <SubComponent Csub="NDEF" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/ndef_config.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_buffer.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_message.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_record.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_aar.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_bluetooth.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_deviceinfo.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_empty.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_flat.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_media.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_text.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_tnep.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_uri.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_vcard.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_wifi.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_wlc.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_type_wpcwlc.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/message/ndef_types.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/poller/ndef_poller.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/poller/ndef_t2t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/poller/ndef_t3t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/poller/ndef_t4t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/poller/ndef_t5t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/ndef/Inc/poller/ndef_t5t_hal.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_message.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_record.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_aar.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_bluetooth.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_deviceinfo.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_empty.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_flat.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_media.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_text.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_tnep.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_uri.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_vcard.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_wifi.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_wlc.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_type_wpcwlc.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/message/ndef_types.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_poller.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_poller_message.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_poller_rf.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_t2t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_t3t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_t4t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_t5t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/ndef/Src/poller/ndef_t5t_rf.c"/>
+        </SubComponent>
+        <SubComponent Csub="RFAL" Cvariant="DefaultIiConfig:DefaultIiConfig" Cversion="1Gg0Gg0">
+		    <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_chip.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_defConfig.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_dpo.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_isoDep.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfc.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfca.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcb.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcDep.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcf.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcv.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_rf.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_st25tb.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_st25xv.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_t1t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_t2t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_t4t.h"/>
+			<File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_utils.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_analogConfig.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_crc.c"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Src/rfal_crc.h"/>
+			<File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_cd.c"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_cd.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_dpo.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_iso15693_2.c"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Src/rfal_iso15693_2.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_isoDep.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfc.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfca.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcb.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcDep.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcf.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcv.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_st25tb.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_st25xv.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_t1t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_t2t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_t4t.c"/>
+        </SubComponent>
+        <SubComponent Csub="RFAL" Cvariant="CustomIiConfig:CustomIiConfig" Cversion="1Gg0Gg0">
+		    <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_chip.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_defConfig.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_dpo.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_isoDep.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfc.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfca.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcb.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcDep.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcf.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_nfcv.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_rf.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_st25tb.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_st25xv.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_t1t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_t2t.h"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_t4t.h"/>
+			<File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_utils.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_analogConfig.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_crc.c"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Src/rfal_crc.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_dpo.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_iso15693_2.c"/>
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Src/rfal_iso15693_2.h"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_isoDep.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfc.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfca.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcb.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcDep.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcf.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_nfcv.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_st25tb.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_st25xv.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_t1t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_t2t.c"/>
+            <File Category="source" Condition="" Name="Middlewares/ST/rfal/Src/rfal_t4t.c"/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="RfalIiConf" Cgroup="RfalCustomConf" Cversion="1Gg0Gg0">
+        <SubComponent Csub="RFALIiFEATUREIiLISTENIiMODE" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiWAKEUPIiMODE" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiLOWPOWERIiMODE" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiNFCA" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiNFCB" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiNFCF" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiNFCV" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiT1T" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiT2T" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiT4T" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiST25TB" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiST25xV" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiDYNAMICIiANALOGIiCONFIG" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiDPO" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiISOIiDEP" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiISOIiDEPIiPOLL" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiISOIiDEPIiLISTEN" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+        <SubComponent Csub="RFALIiFEATUREIiNFCIiDEP" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="Middlewares/ST/rfal/Inc/rfal_analogConfig.h"/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="NFCIiApplicationsCcDevice" Cgroup="Application" Cversion="1Gg0Gg0">
+        <SubComponent Csub="" Cvariant="NFC12A1IiPollingTagDetectNDEF:NFC12A1IiPollingTagDetectNDEF"/>
+        <SubComponent Csub="" Cvariant="NFC12A1IiPollingTagDetect:NFC12A1IiPollingTagDetect"/>
+    </RefComponent>
+    <RefConfigFile Name="RTE_Component" Template="RTE_Components.ftl">
+        <File Category="header" Condition="all" Name="./RTE_Components.h"/>
+    </RefConfigFile>
+	<RefBspComponent BspIpName="SPI" BspModeName="Full-Duplex Master" Description="BSP_BUS_DRIVER" Name="NFC12A1 BUS IO driver">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+		<File Category="template" Name="common_h.ftl" />
+    </RefBspComponent>
+	<RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="Chip Select Pin for NFC Device" Name="NFC CS PIN">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+    <RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="RESET Pin for NFC Device" Name="NFC RST PIN">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>		
+	<RefBspComponent BspIpName="GPIO" BspModeName="EXTI" Description="Interrupt Pin for NFC Device" Name="NFC INT PIN">       
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+	<RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="LED Field pin in NFC0XA1" Name="LED_FIELD">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+	<RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="LED A in NFC0XA1" Name="LED_A">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+	<RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="LED B pin in NFC0XA1" Name="LED_B">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+    <RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="LED F pin in NFC0XA1" Name="LED_F">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+	<RefBspComponent BspIpName="GPIO" BspModeName="Output" Description="LED V pin in NFC0XA1" Name="LED_V">
+        <File attr="config" Category="template" Name="nfc_conf_h.ftl"/>
+    </RefBspComponent>
+	<RefBspComponent Name="BSP USART" BspIpName="(LPU|US)ART" BspModeName="Asynchronous"/>       
+    <RefBspComponent Name="BSP BUTTON" BspIpName="GPIO" BspModeName="EXTI"/>
+	<RefConfigFile Name="NFC12A1_PollingTagDetect_DEMO_C" Description="Source for NFC12A1 Polling Tag Detect demo" Template="nfc12a1_PollingTagDetect_demo_c.ftl">
+        <File Name="nfc12a1_PollingTagDetect_demo.tmp" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect" />
+    </RefConfigFile>
+	<RefConfigFile Name="NFC12A1_PollingTagDetect_DEMO_GV_C" Description="Source for NFC12A1 Polling Tag Detect GV" Template="nfc12a1_PollingTagDetect_demo_gv_c.ftl">
+        <File Name="nfc12a1_PollingTagDetect_demo_gv.tmp" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect" />
+    </RefConfigFile>
+	<RefConfigFile Name="NFC12A1_PollingTagDetect_DEMO_INIT_C" Description="Source for NFC12A1 Polling Tag Detect Init" Template="nfc12a1_PollingTagDetect_demo_init_c.ftl">
+        <File Name="nfc12a1_PollingTagDetect_demo_init.tmp" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect" />
+    </RefConfigFile>
+	<RefConfigFile Name="DEMO_CE_C" Description="Source for library applications" Template="demo_ce_c.ftl">
+        <File Name="Target/demo_ce.c" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect    |SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF" />
+    </RefConfigFile>
+	<RefConfigFile Name="DEMO_POLLING_C" Description="Source for library applications" Template="demo_polling_c.ftl">
+        <File Name="Target/demo_polling.c" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect " />
+    </RefConfigFile>
+    <RefConfigFile Name="UTILS_H" Description="Source for utility applications" Template="utils_h.ftl">
+        <File Name="Target/utils.h" Category="header" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect " />
+    </RefConfigFile>	
+	<RefConfigFile Name="NDEF_DEMO_C" Description="Source for library applications" Template="ndef_demo_c.ftl">
+        <File Name="Target/ndef_demo.c" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF " />
+    </RefConfigFile>
+	<RefConfigFile Name="NDEF_DUMP_C" Description="Source for library applications" Template="ndef_dump_c.ftl">
+        <File Name="Target/ndef_dump.c" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF " />
+    </RefConfigFile>
+	<RefConfigFile Name="NDEF_DUMP_H" Description="Source for library applications" Template="ndef_dump_h.ftl">
+        <File Name="Target/ndef_dump.h" Category="header" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF  " />
+    </RefConfigFile> 
+	<RefConfigFile Name="LOGGER_C" Description="Source for library applications" Template="logger_c.ftl">
+        <File Name="Target/logger.c" Category="source" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect | SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF " />
+    </RefConfigFile>
+	<RefConfigFile Name="NDEF_EXAMPLE_WRAPPER_C" Description="Source for library applications" Template="ndef_example_wrapper_c.ftl">
+        <File Name="ndef_example_wrapper.c" Category="source" Version="" Condition=" SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF  " />
+    </RefConfigFile>
+        <RefConfigFile Name="DEMO_H" Description="Source for library applications" Template="demo_h.ftl">
+        <File Name="Target/demo.h" Category="header" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+    <RefConfigFile Added="true" Name="NFC_CONF_H" Description="Source for library applications" Template="nfc_conf_h.ftl" >
+        <File   Name="Target/nfc_conf.h" Category="header" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+		<Argument Added="true" AddressOf="false" GenericType="simple" Name="RFAL_FEATURE_ISO_DEP_IBLOCK_MAX_LEN" OptimizationCondition="equal"/>
+		<Argument Added="true" AddressOf="false" GenericType="simple" Name="RFAL_FEATURE_NFC_DEP_BLOCK_MAX_LEN" OptimizationCondition="equal"/>
+		<Argument Added="true" AddressOf="false" GenericType="simple" Name="RFAL_FEATURE_NFC_RF_BUF_LEN" OptimizationCondition="equal"/>
+		<Argument Added="true" AddressOf="false" GenericType="simple" Name="RFAL_FEATURE_ISO_DEP_APDU_MAX_LEN" OptimizationCondition="equal"/>
+		<Argument Added="true" AddressOf="false" GenericType="simple" Name="RFAL_FEATURE_NFC_DEP_PDU_MAX_LEN" OptimizationCondition="equal"/>
+    </RefConfigFile>
+	<RefConfigFile Added="true" Name="RFAL_DEFCONFIG_H" Description="Source for library applications" Template="rfal_defConfig_h.ftl">
+        <File  Name="Target/rfal_defConfig.h" Category="header" Condition="SEMWirelessJjMIDIiLIBIiNFC12JjRFALJjDefaultIiConfig" />
+    </RefConfigFile>
+	<RefConfigFile Name="DEMO_CE_H" Description="Source for library applications" Template="demo_ce_h.ftl">
+        <File Name="Target/demo_ce.h" Category="header" Version="" Condition="SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetect | SEMNFCIiApplicationsCcDeviceJjApplicationJjNFC12A1IiPollingTagDetectNDEF " />
+    </RefConfigFile>
+	<RefConfigFile Name="LOGGER_H" Description="Source for library applications" Template="logger_h.ftl">
+        <File Name="Target/logger.h" Category="header" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+	<RefConfigFile Name="NFC_CONF_C" Description="NFC conf file" Template="nfc_conf_c.ftl">
+        <File Name="Target/nfc_conf.c" Category="source" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+	<RefConfigFile Name="RFAL_PLATFORM_H" Description="Source for library applications" Template="rfal_platform_h.ftl">
+        <File Name="Target/rfal_platform.h" Category="header" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+	<RefConfigFile Name="TIMER_C" Description="Source for timer file" Template="timer_c.ftl">
+        <File Name="Target/timer.c" Category="source" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+    <RefConfigFile Name="TIMER_H" Description="header for timer file" Template="timer_h.ftl">
+        <File Name="Target/timer.h" Category="header" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+	<RefConfigFile Name="ST_ERRNO_H" Description="Source for error" Template="st_errno_h.ftl">
+        <File Name="Target/st_errno.h" Category="header" Version="" Condition="SEMBoardOoExtensionJjNFCJjNFC12A1 " />
+    </RefConfigFile>
+</IP>

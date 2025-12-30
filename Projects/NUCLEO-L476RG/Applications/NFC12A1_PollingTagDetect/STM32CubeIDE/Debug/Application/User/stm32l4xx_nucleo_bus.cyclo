@@ -1,0 +1,9 @@
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:89:9:BSP_SPI1_Init	5
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:130:9:BSP_SPI1_DeInit	4
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:156:9:BSP_SPI1_Send	2
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:173:10:BSP_SPI1_Recv	2
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:190:9:BSP_SPI1_SendRecv	2
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:259:9:BSP_GetTick	1
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:265:26:MX_SPI1_Init	2
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:291:13:SPI1_MspInit	1
+/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/stm32l4xx_nucleo_bus.c:332:13:SPI1_MspDeInit	1

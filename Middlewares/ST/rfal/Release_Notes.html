@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Release Notes for NDEF message software Library</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="_htmresc/mini-st.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <link rel="icon" type="image/x-icon" href="_htmresc/favicon.png" />
+</head>
+<body>
+<div class="row">
+<div class="col-sm-12 col-lg-4">
+<center>
+<h1 id="release-notes-for-rfal-software-library"><small>Release Notes for</small> <strong>RFAL software Library</strong></h1>
+<p>Copyright © 2022 STMicroelectronics<br />
+</p>
+<a href="https://www.st.com" class="logo"><img src="_htmresc/st_logo.png" alt="ST logo" /></a>
+</center>
+<h1 id="purpose">Purpose</h1>
+<p>The <strong>RFAL Library (RF Abstraction Layer)</strong> provides several functionalities required to perform RF/NFC communications.The RFAL encapsulates the different RF ICs (ST25R3911, ST25R3916, ST25R200, ST25R500, ST25R95 and future ST25R devices) into a common and easy to use interface.</p>
+<p>The technologies currently supported by RFAL are:</p>
+<ul>
+<li> NFC-A \ ISO14443A (T1T, T2T, T4TA) </li>
+<li> NFC-B \ ISO14443B (T4TB) </li>
+<li> NFC-F \ FeliCa (T3T) </li>
+<li> NFC-V \ ISO15693 (T5T) </li>
+<li> P2P \ ISO18092 (NFCIP1, Passive-Active P2P) </li>
+<li> ST25TB (ISO14443-2 Type B with Proprietary Protocol) </li>
+<li> PicoPass \ iClass  </li>
+<li> B' \ Calypso  </li>
+<li> CTS \ CTM </li>
+</ul>
+<p>The protocols provided by RFAL are: </p>
+<ul>
+<li> ISO-DEP (ISO14443-4)  </li>
+<li> NFC-DEP (ISO18092) </li>
+</ul>
+</div>
+<div class="col-sm-12 col-lg-8">
+<h1 id="update-history">Update History</h1>
+<div class="collapse">
+<input type="checkbox" id="collapse-section24" checked aria-hidden="true"> <label for="collapse-section24" aria-hidden="true">V4.0.2 / 02-April-2025</label>
+<div>
+<h2 id="main-changes">Main Changes</h2>
+<ul>
+<li>Fixed vulnerability during EMD handling on fast systems, introduced at v4.0.0 targeted for high latency systems </li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section23"  aria-hidden="true"> <label for="collapse-section23" aria-hidden="true">V4.0.0 / 17-March-2025</label>
+<div>
+<h2 id="main-changes-1">Main Changes</h2>
+<ul>
+<li>ST25R500/ST25R300 support added</li>
+<li>ISO-DEP improved. Fixed SFGI usage in Listen mode, ISO-DEP FSD check in Reader mode</li>
+<li>Improved robustness for EMD handling on high latency systems</li>
+<li>Improve portability using uintptr_t (C99)</li>
+<li>Added support for Direct Command chaining</li>
+<li>Several improvements on Card Detection and Heartbeat</li>
+<li>DPO module extended. Configurable measurement and adjust methods, interfaces and new adjustment flag added.</li>
+<li>DPO CR (Current Regulation) added (ST25R500 only)</li>
+<li>Added Dynamic LMA module. Optional LMA adjustments can be used in Listen/CE mode</li>
+<li>Several new APIs added in rfalChip section for more measurments and adjustments</li>
+<li>New RFAL_CMATH switch added to enable the usage of C mathematical operations - previously RFAL_ACCURATE_RSSI</li>
+<li>Removed obsolete compile switches</li>
+<li>New timer API to retrieve remaining time</li>
+<li>Several driver improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section22" aria-hidden="true"> <label for="collapse-section22" aria-hidden="true">V3.0.1 / 12-September-2024</label>
+<div>
+<h2 id="main-changes-2">Main Changes</h2>
+<ul>
+<li>Fixed condition that prevents usage of WU default parameters on ST25R3916 (not ST25R3916B) if AAT enabled</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section21" aria-hidden="true"> <label for="collapse-section21" aria-hidden="true">V3.0.0 / 10-June-2024</label>
+<div>
+<h2 id="main-changes-3">Main Changes</h2>
+<ul>
+<li>ST25R200/ST25R100 support added</li>
+<li>Changed rfalDeinitialize procedure to ensure ST25R is set in PD mode</li>
+<li>Added new interface to check whether Wake-up mode is enabled</li>
+<li>Extended NFC/HL to allow to configure whether to poll ahead of going to wake-up mode</li>
+<li>Improved ISO-DEP buffer handling during Listen mode activation</li>
+<li>Improved RFAL NFC/HL layer handling during discovery, particularly for AP2P</li>
+<li>DPO extended to allow adjustment without a communication mode previously set</li>
+<li>Updated ST25R3916 to ensure MOSI state during read operation</li>
+<li>Extended MISRA C / CERT C coverage to DPO and CD modules</li>
+<li>Introduced WLC WPT API declarations</li>
+<li>Several driver improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section20" aria-hidden="true"> <label for="collapse-section20" aria-hidden="true">V2.10.0 / 16-February-2024</label>
+<div>
+<h2 id="main-changes-4">Main Changes</h2>
+<ul>
+<li>Feature switches no longer disabled by omission. User configs at rfal_platform.h or by default by rfal_defConfig.h</li>
+<li>Ensure ST25R3916B AWS is disabled during regulator adjustment</li>
+<li>Extended WU mode to allow the reference measurement to be obtained from WU/PD mode (ST25R3911 and ST25R3916)</li>
+<li>Extended NFC/HL to allow to configure whether to poll ahead of going to wake-up mode</li>
+<li>Changed NFC/HL to only initialize Analog Configuration if not yet performed</li>
+<li>Added new interface to check if Wake-up mode is enabled</li>
+<li>Extended LED support for debug purposes</li>
+<li>ISO-DEP extended to ensure NFC-B TR2 / FDT Poll</li>
+<li>Updated DID handling in ISO-DEP</li>
+<li>Added Listen mode modulation Get and Set interfaces</li>
+<li>Introduced Listen mode External Field On callback</li>
+<li>ST25TB UID integrity checked during Pcall16 anticollision</li>
+<li>Several driver improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section19" aria-hidden="true"> <label for="collapse-section19" aria-hidden="true">V2.8.0 / 14-December-2022</label>
+<div>
+<h2 id="main-changes-5">Main Changes</h2>
+<ul>
+<li>Incorporated RFAL dependecies (utils, errno) into library to make library more self-contained</li>
+<li>Prepended RFAL prefix into user configuration file platform.h --> rfal_platform.h (breaks compatibility with previous versions, see example in rfal.chm))</li>
+<li>Introduced default configuration rfal_defConfig.h
+<li>Improved ISO-DEP Deselect sequence</li>
+<li>Changed the RFAL NFC/HL layer to make use of non blocking ISO-DEP Deselect procedure</li>
+<li>Several improvements and fixes on RFAL NFC/HL layer, including deactivation procedure and compliance mode used for ISO-DEP</li>
+<li>Extended ISO15693 anticollsion APIs to allow larger receptions</li>
+<li>Improved library error checking and portability</li>
+<li>New APIs introduced in rfalChip interface</li>
+<li>Extended rfalLowPowerModeStart to receive a mode to be set</li>
+<li>Added RFAL Card Detection/Protection module</li>
+<li>Several driver improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section18" aria-hidden="true"> <label for="collapse-section18" aria-hidden="true">V2.6.0 / 19-January-2022</label>
+<div>
+<h2 id="main-changes-6">Main Changes</h2>
+<ul>
+<li>Introduced support for ST25R3916B</li>
+<li>Extended NFC technology modules with non-blocking APIs for card activation (Technology detection, Collision Resolution and Activation)</li>
+<li>Extended NFC/HL module with option to bail out, deactivation types, and usage of new non-blocking APIs</li>
+<li>Added new transceive flag for CRC check on Rx</li>
+<li>Better aligned NFC-V special frame timings to NFC Forum Digital</li>
+<li>Further improved compliance to CERT C</li>
+<li>Corrected PAD length in SENSF_RES</li>
+<li>Modified Field Detector to manual setting for RF Collision avoidance / Field On (ST25R3916) due to high temperature limitation</li>
+<li>Changed default Field On mechanism from RF Collision avoidance to transmitter enable (ST25R3911) due to high temperature limitation</li>
+<li>Several driver improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section17" aria-hidden="true"> <label for="collapse-section17" aria-hidden="true">V2.4.0 / 14-June-2021</label>
+<div>
+<h2 id="main-changes-7">Main Changes</h2>
+<ul>
+<li>Aligned to NFC Forum CR12</li>
+<li>EMD error handling simplified/renamed</li>
+<li>SW license disclaimer updated</li>
+<li>Added ST25R device selection check</li>
+<li>Improved SPI initialization sequence</li>
+<li>Modified certain chip specific features/definitions</li>
+<li>Added API for retrieving Wake-up status</li>
+<li>Extended available parameters on NFC/HL module</li>
+<li>Introduced support for proprietary NFC technology on NFC/HL module</li>
+<li>Introduced Transceive start synchronization callback</li>
+<li>Extended support for non-blocking activation</li>
+<li>Extended ST25R3916 SW Tag Detection with fractional delta option</li>
+<li>Improved compliance to CERT C</li>
+<li>Added handling for ST25R3916 PPON2 timer limitation</li>
+<li>Several driver improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section16" aria-hidden="true"> <label for="collapse-section16" aria-hidden="true">V2.2.0 / 22-May-2020</label>
+<div>
+<h2 id="main-changes-8">Main Changes</h2>
+<ul>
+<li>Better alignment to NFC Forum latest requirements (CR12)</li>
+<li>Extended NFC-V module with non-addressed mode support and improved aticollision</li>
+<li>Feature Switches changed to be not mandatory. Modules disabled by default</li>
+<li>Aligned APIs on platform.h (breaks compatibility with previous versions, see example in rfal.chm)</li>
+<li>Added API for release/deletion of timers</li>
+<li>ST25R3916 default analog table modified to X-NUCLEO-NFC12A1 board</li>
+<li>Improved AP2P operation</li>
+<li>Fixed issues introduced on previous release linked to SFGT and anticollision retries</li>
+<li>Introduced Low-Power mode</li>
+<li>Several driver improvements</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section15" aria-hidden="true"> <label for="collapse-section15" aria-hidden="true">V2.1.2 / 27-January-2020</label>
+<div>
+<h2 id="main-changes-9">Main Changes</h2>
+<ul>
+<li>Extended ISO-DEP and NFC-A module to support non-blocking activation interfaces</li>
+<li>Extended NFC/HL module to make use of the new APIs further splitting the execution of the worker during the different activities</li>
+<li>Modified NFC-A anticollision to strictly comply to NFC Forum DP. A separate proprietary method is now available.</li>
+<li>NFC-V changed to use OOK (100% AM) by default</li>
+<li>Fixed FWT used by NFC-V Sleep</li>
+<li>Fixed NFC-F FDT Poll value</li>
+<li>Fixed incorrect register access on ST25R3911B RFO Get/Set method</li>
+<li>SPI driver modified to clear Rx buffer prior to operation</li>
+<li>Added further code size optimizations based on enabled features</li>
+<li>Updated ST25R3916 driver to DS Rev2</li>
+<li>Updated SW Tag Detection as describded in AN Rev3</li>
+<li>Several driver improvements</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section14" aria-hidden="true"> <label for="collapse-section14" aria-hidden="true">V2.1.0 / 30-September-2019</label>
+<div>
+<h2 id="main-changes-10">Main Changes</h2>
+<ul>
+<li>Extended RFAL NFC Higher Layer for increased functionality and configurations</li>
+<li>Several improvements on the ISO-DEP protocol layer</li>
+<li>Protocol buffer sizes made fully configurable for increased memory management</li>
+<li>Introduced option for Collision Avoidance with Automatic Gain Control</li>
+<li>Several driver improvements</li>
+<li>ST25R3916 overheat protection disabled</li>
+<li>RF Transceive modified for transmission errors to precede other errors</li>
+<li>Analog Configs extended to support different DPO power levels</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section13" aria-hidden="true"> <label for="collapse-section13" aria-hidden="true">V2.0.10 / 25-June-2019</label>
+<div>
+<h2 id="main-changes-11">Main Changes</h2>
+<ul>
+<li>Various improvements on RFAL NFC Higher layer</li>
+<li>Added alternative NFC-V anticollision method (non NFC Forum compliant)</li>
+<li>Several minor improvements and fixes</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section12" aria-hidden="true"> <label for="collapse-section12" aria-hidden="true">V2.0.6 / 10-April-2019</label>
+<div>
+<h2 id="main-changes-12">Main Changes</h2>
+<ul>
+<li>Several NFC-V interoperability improvements</li>
+<li>Extended support for specific features of ST's ISO15693 Tags. New ST25Dx module added</li>
+<li>Interrupt handling changed and further protection added</li>
+<li>RFAL feature switches have been modified and features are now disabled if omitted</li>
+<li>ST25R3916 AAT (Automatic Antenna Tunning) module added</li>
+<li>RFAL NFC Higher layer added</li>
+<li>Several driver improvements</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section11" aria-hidden="true"> <label for="collapse-section11" aria-hidden="true">V2.0.4 / 06-February-2019</label>
+<div>
+<h2 id="provided-with-st25r3916-disco-v1.0.0-emvco-v1.2.0">Provided with ST25R3916 DISCO v1.0.0 / EMVCo v1.2.0</h2>
+<h2 id="main-changes-13">Main Changes</h2>
+<ul>
+<li>Minor improvements on NFC-F module</li>
+<li>Several improvements on NFC-V module including support for ST proprietary features</li>
+<li>Fixed issue with Delta RWT calculation</li>
+<li>Fixed incorrect usage of NFCB dTbPoll / DdFWT</li>
+<li>Added compile switch for Listen Mode</li>
+<li>Low power Listen Mode support added</li>
+<li>Listen Mode aligned to NFC Forum Digital 2.1</li>
+<li>Added handling for EMVCo 3.0 static FDTListen</li>
+<li>Introduced SW Tag Detection</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section10" aria-hidden="true"> <label for="collapse-section10" aria-hidden="true">V2.0.2 / 31-October-2018</label>
+<div>
+<h2 id="provided-with-st25r3916-disco-v0.9.4-binary-only">Provided with ST25R3916 DISCO v0.9.4 (binary only)</h2>
+<h2 id="main-changes-14">Main Changes</h2>
+<ul>
+<li>New T4T module added</li>
+<li>Added support for T3T Check and Update commands</li>
+<li>Improved NFC-V module and added Write Multiple Blocks support</li>
+<li>New rfalWorker protection added for improved control in multi-thread environments</li>
+<li>Added support for user defined Analog Config tables</li>
+<li>Several driver improvements and protections added</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section9" aria-hidden="true"> <label for="collapse-section9" aria-hidden="true">V2.0.0 / 28-August-2018</label>
+<div>
+<h2 id="main-changes-15">Main Changes</h2>
+<ul>
+<li>MISRA C 2012 compliant</li>
+<li>ST25R3916 support added</li>
+<li>ST25R95 support added</li>
+<li>Fix unwanted Field Detector disable when entering Wake-up mode</li>
+<li>Extended Analog Config to have specific events</li>
+<li>Fixed NFC-DEP potential issue if DID used</li>
+<li>Extended NFC-V commands</li>
+<li>T2T module added</li>
+<li>Improved initial Listen mode handling</li>
+<li>Extended Wake-Up mode to support Capacitive measurement</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section8" aria-hidden="true"> <label for="collapse-section8" aria-hidden="true">V1.3.6 / 08-May-2018</label>
+<div>
+<h2 id="provided-with-st25r3911b-disco-v1.2.0">Provided with ST25R3911B DISCO v1.2.0</h2>
+<h2 id="main-changes-16">Main Changes</h2>
+<ul>
+<li>Fixed NFC-V Read operation in addressed mode</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section7" aria-hidden="true"> <label for="collapse-section7" aria-hidden="true">V1.3.4 / 07-May-2018</label>
+<div>
+<h2 id="main-changes-17">Main Changes</h2>
+<ul>
+<li>Fixed NFC-V Read operation in addressed mode</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section6" aria-hidden="true"> <label for="collapse-section6" aria-hidden="true">V1.3.2 / 31-January-2018</label>
+<div>
+<h2 id="main-changes-18">Main Changes</h2>
+<ul>
+<li>Modified Wake-Up mode interface</li>
+<li>Fixed SFGI calculation in ISO-DEP</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section5" aria-hidden="true"> <label for="collapse-section5" aria-hidden="true">V1.3.0 / 22-January-2018</label>
+<div>
+<h2 id="main-changes-19">Main Changes</h2>
+<ul>
+<li>Introduced a new IRQ status handling to read the registers only once</li>
+<li>Several changes for supporting Linux platform</li>
+<li>SPI Select/Deselect moved to platform.h</li>
+<li>Aditional protection of the IRQ status reading, new macros available: platformProtectST25R391xIrqStatus / platformUnprotectST25R391xIrqStatus</li>
+<li>Renamed the IRQ Enable/Disable macros to platformProtectST25R391xComm / platformUnprotectST25R391xComm</li>
+<li>Renamed SPI pins from chip specific to ST25R391X</li>
+<li>Introduced a new option ST25R391X_COM_SINGLETXRX which executes SPI in one single exchange (additional buffer required)</li>
+<li>Updated and added errata handlings to latest ST25R3911 Errata version</li>
+<li>Fixed inconsitency on Analog settings for NFC-V</li>
+<li>Fixed issue on NFC-V 1of256 decoding</li>
+<li>Changed the default NFC-A FDT Listen to be more strict</li>
+<li>Added Wake-Up mode support</li>
+<li>Added RFAL version definition</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section4" aria-hidden="true"> <label for="collapse-section4" aria-hidden="true">V1.2.0 / 17-August-2017</label>
+<div>
+<h2 id="provided-with-st25r3911b-disco-v1.1.16">Provided with ST25R3911B DISCO v1.1.16</h2>
+<h2 id="main-changes-20">Main Changes</h2>
+<ul>
+<li>Aligned Technology modules to NFC Activity v1.1 and EMVCo v2.6</li>
+<li>Extended NFC-B Collision Resolution allowing user define Slots</li>
+<li>Added feature switches to enable/disable individual modules</li>
+<li>ISO-DEP Interface changes allowing more user configurations and further EMVCo alignment</li>
+<li>Changed ST25TB detection to always perform Anti Collision loop regardeless of the result of the Poll</li>
+<li>Fixed FIFO WL handling</li>
+<li>Modified FDT Poll handling</li>
+<li>Changed rfalCalibrate() to not overwrite dynamic configs</li>
+<li>Added adjustment for TR1PUTMIN</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section3" aria-hidden="true"> <label for="collapse-section3" aria-hidden="true">V1.1.0 / 30-June-2017</label>
+<div>
+<h2 id="provided-with-st25r3911b-disco-v1.1.12">Provided with ST25R3911B DISCO v1.1.12</h2>
+<h2 id="main-changes-21">Main Changes</h2>
+<ul>
+<li>EMD supression enabled for ST25R3911B</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section2" aria-hidden="true"> <label for="collapse-section2" aria-hidden="true">V1.0.0 / 16-May-2017</label>
+<div>
+<h2 id="provided-with-x-nucleo-nfc05a1-v1.0.0">Provided with X-NUCLEO-NFC05A1 v1.0.0</h2>
+<h2 id="main-changes-22">Main Changes</h2>
+<ul>
+<li>Added support for B', CTS and PicoPass/iClass mode</li>
+<li>Several impromvements for NFC-V mode</li>
+<li>Improved error detection during NFC-B collision resolution</li>
+<li>Extended T1T module</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section1" aria-hidden="true"> <label for="collapse-section1" aria-hidden="true">V0.9.0 / 02-March-2017</label>
+<div>
+<h2 id="provided-with-st25r3911b-discovery-kit-on-embedded-world-conference-binary-only">Provided with ST25R3911B Discovery Kit on Embedded World Conference (binary only)</h2>
+<h2 id="main-changes-23">Main Changes</h2>
+</div>
+</div>
+<footer class="sticky">
+<p>For complete documentation on <strong>STM32</strong> microcontrollers please visit: <a href="https://www.st.com/en/microcontrollers-microprocessors.html">www.st.com</a></p>
+This release note uses up to date web standards and, for this reason, should not be opened with Internet Explorer but preferably with popular browsers such as Google Chrome, Mozilla Firefox, Opera or Microsoft Edge.
+</footer>
+</body>
+</html>
