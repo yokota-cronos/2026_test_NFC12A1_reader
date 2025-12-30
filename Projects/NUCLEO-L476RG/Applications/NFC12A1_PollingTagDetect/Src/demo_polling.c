@@ -60,7 +60,7 @@
 #define DEMO_ST_NOTINIT               0     /*!< Demo State:  Not initialized | Stopped */
 #define DEMO_ST_START_DISCOVERY       1     /*!< Demo State:  Start Discovery           */
 #define DEMO_ST_DISCOVERY             2     /*!< Demo State:  Discovery                 */
-
+#define FAST_READ_BLOCKS 10
 #define DEMO_NFCV_BLOCK_LEN           4     /*!< NFCV Block len                         */
 #define BLOCKS_TO_READ                32    /* read 32 block */
 #define BYTES_PER_BLOCK               4     /* ST25DV each block 4 bytes */
@@ -193,7 +193,7 @@ uint16_t demoGetDiscoverTotalDuration(void)
 static void demoNotif(rfalNfcState st)
 {
     uint8_t       devCnt;
-    rfalNfcDevice *dev;
+    rfalNfcDevice *devList;
 
     if( st == RFAL_NFC_STATE_WAKEUP_MODE )
     {
@@ -208,24 +208,44 @@ static void demoNotif(rfalNfcState st)
     }
     else if( st == RFAL_NFC_STATE_POLL_SELECT )
     {
-        /* Check if in case of multiple devices, selection is already attempted */
-        if( (!multiSel) )
-        {
-            multiSel = true;
-            /* Multiple devices were found, activate first of them */
-            rfalNfcGetDevicesFound( &dev, &devCnt );
-            rfalNfcSelect( 0 );
+        /*******************************************************************************/
+        /* 【核心修改区域】：多标签处理逻辑                                             */
+        /*******************************************************************************/
 
-            platformLog("Multiple Tags detected: %d \r\n", devCnt);
-        }
-        else
+        /* 1. 获取 RFAL 扫描到的所有设备列表 */
+        /* discParam.devLimit 必须在 demoIni 中设置为 >1 (如 5) 才能生效 */
+        rfalNfcGetDevicesFound( &devList, &devCnt );
+
+        if( devCnt > 0 )
         {
-            rfalNfcDeactivate( RFAL_NFC_DEACTIVATE_DISCOVERY );
+            platformLog("\r\n>>> Scan Cycle Start: Found %d Tags <<<\r\n", devCnt);
+
+            /* 2. 遍历列表中的每一个设备，依次进行读取 */
+            for( int i = 0; i < devCnt; i++ )
+            {
+                /* 3. 类型过滤：只处理 NFC-V (ISO15693) 设备，即 Smartag */
+                /* 其他类型的卡片（如公交卡、银行卡）会被忽略，不浪费时间 */
+                if( devList[i].type == RFAL_NFC_LISTEN_TYPE_NFCV )
+                {
+                    /* (可选) 打印当前是第几个标签，调试用 */
+                    /* platformLog("[Tag %d/%d] ", i+1, devCnt); */
+
+                    /* 4. 调用之前写好的读取函数，传入该设备的指针 */
+                    /* NFC-V 协议支持直接使用 UID 进行寻址读取，因此不需要 Select 激活过程 */
+                    demoNfcv( &devList[i].dev.nfcv );
+                }
+            }
+            platformLog(">>> Scan Cycle End <<<\r\n");
         }
+
+        /* 5. 关键步骤：读取完这一轮所有标签后，立即结束当前会话 */
+        /* 调用 Deactivate 会强制 RFAL 状态机回到 Discovery (空闲扫描) 状态 */
+        /* 这样 Reader 就会立刻开始下一轮寻找，实现“实时动态刷新” */
+        rfalNfcDeactivate( RFAL_NFC_DEACTIVATE_DISCOVERY );
     }
     else if( st == RFAL_NFC_STATE_START_DISCOVERY )
     {
-        /* Clear multiple device selection flag */
+        /* 清除多选标志位 */
         multiSel = false;
     }
 }
@@ -249,7 +269,7 @@ bool demoIni(void)
   {
     rfalNfcDefaultDiscParams( &discParam );
 
-    discParam.devLimit      = 1U;
+    discParam.devLimit      = 5U;
 
     ST_MEMCPY( &discParam.nfcid3, NFCID3, sizeof(NFCID3) );
     ST_MEMCPY( &discParam.GB, GB, sizeof(GB) );
@@ -673,6 +693,8 @@ static void demoNfcf(rfalNfcfListenDevice *nfcfDev)
 //
 //#endif /* RFAL_FEATURE_NFCV */
 //}
+
+
 static void demoNfcv(rfalNfcvListenDevice *nfcvDev)
 {
 #if RFAL_FEATURE_NFCV
@@ -682,12 +704,11 @@ static void demoNfcv(rfalNfcvListenDevice *nfcvDev)
   uint8_t               rxBuf[ 1 + DEMO_NFCV_BLOCK_LEN + RFAL_CRC_LEN ];
   uint8_t               *uid = nfcvDev->InvRes.UID;
 
-  // 32 blocks * 4 bytes = 128 bytes
-  uint8_t               rawMemory[BLOCKS_TO_READ * BYTES_PER_BLOCK];
-  int                   blocksReadSuccessfully = 0;
+  #define FAST_READ_BLOCKS 10
+  uint8_t               rawMemory[FAST_READ_BLOCKS * 4];
+  bool                  readSuccess = true;
 
-  /* 1. Batch read memory (keep retry mechanism, but remove error logging) */
-  for (int b = 0; b < BLOCKS_TO_READ; b++)
+  for (int b = 0; b < FAST_READ_BLOCKS; b++)
   {
       bool blockSuccess = false;
       for(int retry = 0; retry < 3; retry++)
@@ -695,65 +716,74 @@ static void demoNfcv(rfalNfcvListenDevice *nfcvDev)
           err = rfalNfcvPollerReadSingleBlock(RFAL_NFCV_REQ_FLAG_DEFAULT, uid, b, rxBuf, sizeof(rxBuf), &rcvLen);
           if (err == RFAL_ERR_NONE)
           {
-              memcpy(&rawMemory[b * BYTES_PER_BLOCK], &rxBuf[1], BYTES_PER_BLOCK);
-              blocksReadSuccessfully++;
+              memcpy(&rawMemory[b * 4], &rxBuf[1], 4);
               blockSuccess = true;
               break;
           }
-          else
-          {
-              platformDelay(1); // Tiny delay on failure
-          }
+          platformDelay(1);
       }
+
       if (!blockSuccess) {
-          memset(&rawMemory[b * BYTES_PER_BLOCK], 0x00, BYTES_PER_BLOCK);
+          if(b == 0) { readSuccess = false; break; } // Block 0 必须读到
+          memset(&rawMemory[b * 4], 0x00, 4);
       }
   }
 
-  /* 2. Parse NDEF data and output single line result */
-  if (blocksReadSuccessfully > 4)
+  if (readSuccess)
   {
-      int parseIdx = 4; // Skip CC File
-      bool msgFound = false;
+      int parseIdx = 4; // 跳过 CC
+      bool found = false;
 
-      while (parseIdx < (BLOCKS_TO_READ * BYTES_PER_BLOCK) - 6)
+      while (parseIdx < (FAST_READ_BLOCKS * 4) - 6)
       {
-          if (rawMemory[parseIdx] == 0x03) // TLV Message
+          if (rawMemory[parseIdx] == 0x03)
           {
+
+
               int recordStart = parseIdx + 2;
 
-              // Check Header(D1), TypeLen(01), Type('T')
-              if (rawMemory[recordStart] == 0xD1 &&
-                  rawMemory[recordStart + 1] == 0x01 &&
-                  rawMemory[recordStart + 3] == 'T')
+              // 检查 Header=D1, TypeLen=01 (Index 6, 7)
+              if (rawMemory[recordStart] == 0xD1 && rawMemory[recordStart + 1] == 0x01)
               {
+                  // 也就是 recordStart + 2 (Index 8)
                   uint8_t payloadLen = rawMemory[recordStart + 2];
-                  int statusByte = rawMemory[recordStart + 4];
-                  int langLen = statusByte & 0x3F;
 
-                  int textStart = recordStart + 4 + 1 + langLen;
-                  int textLen = payloadLen - 1 - langLen;
-
-                  if (textLen > 0 && (textStart + textLen) < (BLOCKS_TO_READ * BYTES_PER_BLOCK))
+                  // Type ('T') 是在 Payload Length 之后
+                  // 也就是 recordStart + 3 (Index 9)
+                  if (rawMemory[recordStart + 3] == 'T')
                   {
-                      char sensorMsg[128] = {0};
-                      memcpy(sensorMsg, &rawMemory[textStart], textLen);
-                      sensorMsg[textLen] = '\0';
+                      // Payload 从 Type 之后开始
+                      // recordStart + 4 (Index 10) 是 Status Byte
+                      int statusByte = rawMemory[recordStart + 4];
+                      int langLen = statusByte & 0x3F; // 通常是 2 ('e','n')
 
-                      // [Final Output]: Print only this line
-                      platformLog("Sensor Data: %s\r\n", sensorMsg);
+                      // 文本真实起始位置: Status(1) + Lang(2) 之后
+                      int textStart = recordStart + 4 + 1 + langLen;
+                      int textLen = payloadLen - 1 - langLen;
 
-                      msgFound = true;
-                      break;
+                      if (textLen > 0 && (textStart + textLen) <= (FAST_READ_BLOCKS * 4))
+                      {
+                          char msg[64] = {0};
+                          memcpy(msg, &rawMemory[textStart], textLen);
+                          msg[textLen] = '\0';
+
+                          // 打印成功！
+                          platformLog("[Sensor] %s\r\n", msg);
+                          found = true;
+                          break;
+                      }
                   }
               }
           }
           parseIdx++;
       }
-  }
 
-  // Slight delay to prevent UART flooding
-  platformDelay(100);
+      if(!found) {
+          platformLog("[Parse Fail] Hex: %02X %02X %02X %02X | %02X %02X %02X %02X\r\n",
+              rawMemory[0], rawMemory[1], rawMemory[2], rawMemory[3],
+              rawMemory[4], rawMemory[5], rawMemory[6], rawMemory[7]);
+      }
+  }
 
 #endif /* RFAL_FEATURE_NFCV */
 }

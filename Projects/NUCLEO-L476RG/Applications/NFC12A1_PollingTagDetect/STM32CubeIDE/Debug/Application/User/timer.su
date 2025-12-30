@@ -1,7 +1,0 @@
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:42:16:timerCalcDiff	24	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:65:10:timerCalculateTimer	16	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:71:6:timerIsExpired	16	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:77:10:timerGetRemaining	24	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:86:6:timerDelay	24	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:96:6:timerStopwatchStart	8	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/timer.c:102:10:timerStopwatchMeasure	8	static

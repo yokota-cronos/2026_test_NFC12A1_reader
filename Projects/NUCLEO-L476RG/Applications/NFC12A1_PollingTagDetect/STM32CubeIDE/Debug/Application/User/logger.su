@@ -1,4 +1,0 @@
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/logger.c:52:6:logUsartInit	16	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/logger.c:64:9:logUsartTx	16	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/logger.c:81:5:logUsart	272	static
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/logger.c:105:7:hex2Str	40	static

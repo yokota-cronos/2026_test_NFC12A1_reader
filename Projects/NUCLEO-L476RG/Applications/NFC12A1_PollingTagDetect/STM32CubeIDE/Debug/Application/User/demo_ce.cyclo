@@ -1,9 +1,0 @@
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:170:13:cmdCompare	3
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:192:17:demoCeT4TSelect	9
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:250:17:demoCeT4TRead	7
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:305:17:demoCeT4TUpdate	3
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:342:17:demoCeT3TCheck	14
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:459:17:demoCeT3TUpdate	11
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:564:6:demoCeInit	3
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:599:10:demoCeT4T	10
-/Users/faner/Documents/Repo/NFC12A1+L476/Projects/NUCLEO-L476RG/Applications/NFC12A1_PollingTagDetect/Src/demo_ce.c:649:10:demoCeT3T	7

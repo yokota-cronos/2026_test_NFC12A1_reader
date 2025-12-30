@@ -1,9 +1,0 @@
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:106:6:rfalAnalogConfigInitialize	1
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:124:6:rfalAnalogConfigIsReady	1
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:131:12:rfalAnalogConfigListWriteRaw	1
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:172:12:rfalAnalogConfigListWrite	1
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:236:12:rfalAnalogConfigListReadRaw	5
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:262:12:rfalAnalogConfigListRead	2
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:295:12:rfalSetAnalogConfig	8
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:345:10:rfalAnalogConfigGenModeID	8
-/Users/faner/Documents/Repo/NFC12A1+L476/Middlewares/ST/rfal/Src/rfal_analogConfig.c:436:28:rfalAnalogConfigSearch	7
