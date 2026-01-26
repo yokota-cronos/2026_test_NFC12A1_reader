@@ -98,45 +98,50 @@ void MX_NFC12_PollingDemo_Init(void)
 #endif /* ST25R500 */
 
   /* Initialize RFAL */
-  if (!demoIni())
-  {
-    /*
-    * in case the rfal initialization failed signal it by flashing all LED
-    * and stopping all operations
-    */
-    platformLog("Initialization failed..\r\n");
-    while (1)
+  /* 在 MX_NFC12_PollingDemo_Init 函数内 */
+
+    /* Initialize RFAL */
+    if (!demoIni())
     {
-      platformLedToogle(PLATFORM_LED_A_PORT, PLATFORM_LED_A_PIN);
-      platformLedToogle(PLATFORM_LED_B_PORT, PLATFORM_LED_B_PIN);
-      platformLedToogle(PLATFORM_LED_F_PORT, PLATFORM_LED_F_PIN);
-      platformLedToogle(PLATFORM_LED_V_PORT, PLATFORM_LED_V_PIN);
-      platformLedToogle(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
-
-      platformDelay(100);
+      /* 初始化失败的处理逻辑 (保持原样，或者如果想在失败时也省电，可以把这里的 while(1) 里的闪烁也去掉) */
+      platformLog("Initialization failed..\r\n");
+      while (1)
+      {
+        /* 如果希望失败时也完全不亮灯，可以注释掉下面这几行 */
+        platformLedToogle(PLATFORM_LED_A_PORT, PLATFORM_LED_A_PIN);
+        platformLedToogle(PLATFORM_LED_B_PORT, PLATFORM_LED_B_PIN);
+        platformLedToogle(PLATFORM_LED_F_PORT, PLATFORM_LED_F_PIN);
+        platformLedToogle(PLATFORM_LED_V_PORT, PLATFORM_LED_V_PIN);
+        platformLedToogle(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
+        platformDelay(100);
+      }
     }
-  }
-  else
-  {
-    platformLog("Initialization succeeded..\r\n");
-    for (int i = 0; i < 6; i++)
+    else
     {
-      platformLedToogle(PLATFORM_LED_A_PORT, PLATFORM_LED_A_PIN);
-      platformLedToogle(PLATFORM_LED_B_PORT, PLATFORM_LED_B_PIN);
-      platformLedToogle(PLATFORM_LED_F_PORT, PLATFORM_LED_F_PIN);
-      platformLedToogle(PLATFORM_LED_V_PORT, PLATFORM_LED_V_PIN);
-      platformLedToogle(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
+      platformLog("Initialization succeeded..\r\n");
 
-      platformDelay(200);
+      /* =========== 修改开始：移除启动闪烁 =========== */
+
+      /* 注释掉下面这个循环，禁止启动时的跑马灯效果 */
+      // for (int i = 0; i < 6; i++)
+      // {
+      //   platformLedToogle(PLATFORM_LED_A_PORT, PLATFORM_LED_A_PIN);
+      //   platformLedToogle(PLATFORM_LED_B_PORT, PLATFORM_LED_B_PIN);
+      //   platformLedToogle(PLATFORM_LED_F_PORT, PLATFORM_LED_F_PIN);
+      //   platformLedToogle(PLATFORM_LED_V_PORT, PLATFORM_LED_V_PIN);
+      //   platformLedToogle(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
+      //   platformDelay(200);
+      // }
+
+      /* 确保所有 LED 强制处于关闭状态 */
+      platformLedOff(PLATFORM_LED_A_PORT, PLATFORM_LED_A_PIN);
+      platformLedOff(PLATFORM_LED_B_PORT, PLATFORM_LED_B_PIN);
+      platformLedOff(PLATFORM_LED_F_PORT, PLATFORM_LED_F_PIN);
+      platformLedOff(PLATFORM_LED_V_PORT, PLATFORM_LED_V_PIN);
+      platformLedOff(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
+
+      /* =========== 修改结束 =========== */
     }
-
-    platformLedOff(PLATFORM_LED_A_PORT, PLATFORM_LED_A_PIN);
-    platformLedOff(PLATFORM_LED_B_PORT, PLATFORM_LED_B_PIN);
-    platformLedOff(PLATFORM_LED_F_PORT, PLATFORM_LED_F_PIN);
-    platformLedOff(PLATFORM_LED_V_PORT, PLATFORM_LED_V_PIN);
-    platformLedOff(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
-
-  }
 }
 
 /**
