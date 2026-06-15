@@ -73,6 +73,51 @@ your preferred toolchain - Rebuild all files and load your image into
 target memory - Run the example - \< Add any other step(s) to be done by
 the user to make the example working \>
 
+### **Build & Flash with VS Code / STM32CubeCLT (arm-none-eabi)**
+
+This project can be built and flashed without STM32CubeIDE, using
+[STM32CubeCLT](https://www.st.com/en/development-tools/stm32cubeclt.html)
+(arm-none-eabi-gcc + Ninja + STM32CubeProgrammer) and VS Code.
+The build is driven by `CMakeLists.txt` / `CMakePresets.json`.
+
+**Prerequisites**
+
+- STM32CubeCLT installed (this project was tested with `C:\ST\STM32CubeCLT_1.21.0`).
+- NUCLEO-L476RG connected via USB (the on-board ST-LINK is used to flash).
+
+#### VS Code (Tasks)
+
+Open the application folder in VS Code and run a task
+(`Ctrl+Shift+P` -> `Tasks: Run Task`):
+
+- **Build (Debug)** - configure + build (output in `build/debug/`).
+- **Flash (ST-Link)** - flash the already-built `.elf` to the target.
+- **Build & Flash** - build then flash in one step.
+- **Clean** - remove build artifacts.
+
+The tasks add the STM32CubeCLT tools to `PATH` automatically (see
+`.vscode/tasks.json`); adjust the version path there if your install differs.
+
+#### Command line
+
+```sh
+# add STM32CubeCLT tools to PATH (adjust the version if needed)
+# CMake\bin, Ninja\bin, GNU-tools-for-STM32\bin, STM32CubeProgrammer\bin
+
+# 1. configure (first time only)
+cmake --preset debug
+
+# 2. build  -> build/debug/NFC12A1_PollingTagDetect.elf (+ .hex / .bin)
+cmake --build build/debug
+
+# 3. flash via the on-board ST-LINK (SWD), verify and reset
+STM32_Programmer_CLI -c port=SWD mode=UR \
+    -w build/debug/NFC12A1_PollingTagDetect.elf -v -rst
+```
+
+Tip: `STM32_Programmer_CLI -l` lists connected ST-LINK probes and the
+virtual COM port (used for the logger UART output).
+
 ### **Author**
 
 SRA Application Team

@@ -2,3 +2,6 @@
 Debug/
 Release/
 *.launch
+
+# VS Code / CMake build output
+build/
