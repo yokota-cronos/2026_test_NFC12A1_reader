@@ -15,6 +15,8 @@
 #include "rfal_nfc.h"
 #include "rfal_t2t.h"
 #include "logger.h"
+#include "nfc_conf.h"
+#include "st25r500_com.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -24,20 +26,13 @@
 
 /*
  ******************************************************************************
- * CONFIGURATION - Modify your Tag UIDs here
+ * CONFIGURATION
  ******************************************************************************
  */
 
-/* Target Tag UIDs (MSB first) */
-static uint8_t TARGET_TAGS[5][8] = {
-    {0xE0, 0x02, 0x27, 0x69, 0x7A, 0x67, 0x59, 0xD1},  /* Tag 1 */
-    {0xE0, 0x02, 0x27, 0x69, 0x7A, 0x6B, 0x8C, 0x75},  /* Tag 2 */
-    {0xE0, 0x02, 0x27, 0x00, 0x51, 0xCE, 0xDA, 0xF7},  /* Tag 3 */
-	{0xE0, 0x02, 0x27, 0x68, 0x01, 0x8F, 0xCA, 0x5B},  /* Tag 4 */
-	{0xE0, 0x02, 0x27, 0x68, 0x01, 0x8F, 0xC8, 0x66}   /* Tag 5 */
-};
-
-#define NUM_TARGETS          5
+/* Generic read: detect whatever NFC-V (ISO15693) tag is in the field via
+ * inventory, then read it by its own UID. No hard-coded UID list needed. */
+#define MAX_DEVICES          5      /* max simultaneous tags to resolve */
 #define READ_BLOCKS          16
 #define BLOCK_SIZE           4
 #define RAW_MEMORY_SIZE      (READ_BLOCKS * BLOCK_SIZE)
@@ -67,7 +62,7 @@ static uint8_t              state = DEMO_ST_NOTINIT;
  * LOCAL FUNCTION PROTOTYPES
  ******************************************************************************
  */
-static void demoNotif(rfalNfcState st);
+static void demoPollOnce(void);
 static void demoNfcv(rfalNfcvListenDevice *nfcvDev);
 static void demoCE(rfalNfcDevice *nfcDev);
 
@@ -85,130 +80,96 @@ uint16_t demoGetDiscoverTotalDuration(void) { return discParam.totalDuration; }
  ******************************************************************************
  */
 
-static void demoNotif(rfalNfcState st)
+/* One polling pass: inventory any NFC-V tag(s) in the field, read & print.
+ * The RF field is left ON by demoIni and stays on; called every demoCycle(). */
+static void demoPollOnce(void)
 {
-    if (st == RFAL_NFC_STATE_POLL_SELECT || st == RFAL_NFC_STATE_START_DISCOVERY)
+    rfalNfcvListenDevice devList[MAX_DEVICES];
+    uint8_t              devCnt = 0;
+    ReturnCode           err;
+
+    /* --- 1. Inventory: find whatever NFC-V tag(s) are present --- */
+    err = rfalNfcvPollerCollisionResolution(
+              RFAL_COMPLIANCE_MODE_NFC, MAX_DEVICES, devList, &devCnt);
+
+    if (err != RFAL_ERR_NONE || devCnt == 0)
     {
-        static bool isRunning = false;
-        if (isRunning) return;
-        isRunning = true;
+        return; /* No tag in field: stay quiet */
+    }
 
-        platformLog("\r\n>>> Smart Polling Mode (Skip Empty Frames)\r\n");
-
-        /* Initialize NFC-V and enable RF field */
-        rfalNfcvPollerInitialize();
-        rfalFieldOnAndStartGT();
-
-        platformLog(">>> Field ON, charging tags (500ms)...\r\n");
-        platformDelay(500);
-
-        /* Main polling loop */
-        while (1)
+    /* --- 2. For each detected tag: print UID, read memory, parse --- */
+    platformLog("--- SOF (%d tag) ---\r\n", devCnt);
+    for (int i = 0; i < devCnt; i++)
+    {
+        /* InvRes.UID is in transmitted order (LSB first, UID[7]=0xE0).
+         * Print it MSB-first to match the way UIDs are usually written. */
+        uint8_t *uid = devList[i].InvRes.UID;
+        char uidStr[3 * RFAL_NFCV_UID_LEN];
+        int p = 0;
+        for (int k = RFAL_NFCV_UID_LEN - 1; k >= 0; k--)
         {
-            /* --- 1. 定义缓存区 --- */
-            /* * 我们先把数据存在这里，而不是直接打印。
-             * 只有当至少一个 Tag 读成功时，才把这批数据发给串口。
-             */
-            char printBuffer[NUM_TARGETS][80];
-            bool frameHasData = false;         /* 本帧是否有效标志位 */
+            p += snprintf(&uidStr[p], sizeof(uidStr) - p,
+                          (k == RFAL_NFCV_UID_LEN - 1) ? "%02X" : ":%02X",
+                          uid[k]);
+        }
+        platformLog("Tag_%d UID=%s\r\n", i + 1, uidStr);
 
-            /* --- 2. 轮询所有 Tag (静默读取) --- */
-            for (int i = 0; i < NUM_TARGETS; i++)
+        /* Read 16 blocks (64 bytes) addressed by this tag's own UID */
+        uint8_t  rxBuf[1 + RAW_MEMORY_SIZE + RFAL_CRC_LEN];
+        uint16_t rcvLen = 0;
+
+        err = rfalNfcvPollerReadMultipleBlocks(
+                  RFAL_NFCV_REQ_FLAG_DEFAULT, uid,
+                  0, READ_BLOCKS - 1, rxBuf, sizeof(rxBuf), &rcvLen);
+        if (err != RFAL_ERR_NONE) /* retry once */
+        {
+            err = rfalNfcvPollerReadMultipleBlocks(
+                      RFAL_NFCV_REQ_FLAG_DEFAULT, uid,
+                      0, READ_BLOCKS - 1, rxBuf, sizeof(rxBuf), &rcvLen);
+        }
+
+        if (err != RFAL_ERR_NONE || rcvLen <= 1)
+        {
+            platformLog("  read failed (err=%d)\r\n", (int)err);
+            continue;
+        }
+
+        /* Try to parse an NDEF Text record (D1 01 xx 54) */
+        uint8_t *rawMemory = &rxBuf[1];
+        int      memSize    = rcvLen - 1;
+        bool     parsed     = false;
+
+        for (int idx = 0; idx < memSize - 6; idx++)
+        {
+            if (rawMemory[idx] == 0xD1 && rawMemory[idx + 1] == 0x01 &&
+                rawMemory[idx + 3] == 0x54)
             {
-                rfalNfcWorker();
+                uint8_t payloadLen = rawMemory[idx + 2];
+                uint8_t statusByte = rawMemory[idx + 4];
+                int     langLen    = statusByte & 0x1F;
+                int     textStart  = idx + 5 + langLen;
+                int     textLen    = payloadLen - 1 - langLen;
 
-                /* 默认填入 MISS，防止后面有乱码 */
-                snprintf(printBuffer[i], sizeof(printBuffer[i]), "MISS");
-
-                /* Skip empty UID entries */
-                if (TARGET_TAGS[i][0] == 0x00 && TARGET_TAGS[i][7] == 0x00)
-                    continue;
-
-                /* Convert UID to machine format (LSB first) */
-                uint8_t machineUID[RFAL_NFCV_UID_LEN];
-                for (int k = 0; k < 8; k++) {
-                    machineUID[k] = TARGET_TAGS[i][7-k];
-                }
-
-                uint8_t  rxBuf[1 + RAW_MEMORY_SIZE + RFAL_CRC_LEN];
-                uint16_t rcvLen;
-                ReturnCode err;
-
-                /* Read 16 blocks (64 bytes) in one go */
-                err = rfalNfcvPollerReadMultipleBlocks(
-                    RFAL_NFCV_REQ_FLAG_DEFAULT,
-                    machineUID,
-                    0, READ_BLOCKS - 1,
-                    rxBuf, sizeof(rxBuf), &rcvLen
-                );
-
-                /* Retry logic */
-                if (err != RFAL_ERR_NONE) {
-                    err = rfalNfcvPollerReadMultipleBlocks(
-                        RFAL_NFCV_REQ_FLAG_DEFAULT,
-                        machineUID,
-                        0, READ_BLOCKS - 1,
-                        rxBuf, sizeof(rxBuf), &rcvLen
-                    );
-                }
-
-                /* 解析数据 */
-                if (err == RFAL_ERR_NONE && rcvLen > 1)
+                if (textLen > 0 && textLen < 64 &&
+                    (textStart + textLen) <= memSize)
                 {
-                    uint8_t *rawMemory = &rxBuf[1];
-                    int memSize = rcvLen - 1;
-
-                    /* Search for NDEF header D1 01 xx 54 */
-                    for (int idx = 0; idx < memSize - 6; idx++)
-                    {
-                        if (rawMemory[idx] == 0xD1 && rawMemory[idx+1] == 0x01 && rawMemory[idx+3] == 0x54)
-                        {
-                            uint8_t payloadLen = rawMemory[idx+2];
-                            uint8_t statusByte = rawMemory[idx+4];
-                            int langLen = statusByte & 0x1F;
-                            int textStart = idx + 5 + langLen;
-                            int textLen = payloadLen - 1 - langLen;
-
-                            if (textLen > 0 && textLen < 64 && (textStart + textLen) <= memSize)
-                            {
-                                char parsedData[64] = {0};
-                                memcpy(parsedData, &rawMemory[textStart], textLen);
-                                parsedData[textLen] = '\0';
-
-                                /* 解析成功，写入缓存 */
-                                snprintf(printBuffer[i], sizeof(printBuffer[i]), "%s", parsedData);
-
-                                /* !!! 关键点：只要有一个成功，标记本帧有效 !!! */
-                                frameHasData = true;
-                                break;
-                            }
-                        }
-                    }
-                    /* 如果读到了数据但不是 NDEF，也算是有数据 (可选) */
-                    // if (!frameHasData) { snprintf(printBuffer[i], 80, "RAW_DATA"); frameHasData = true; }
+                    char parsedData[64] = {0};
+                    memcpy(parsedData, &rawMemory[textStart], textLen);
+                    parsedData[textLen] = '\0';
+                    platformLog("  Text: %s\r\n", parsedData);
+                    parsed = true;
+                    break;
                 }
             }
+        }
 
-            /* --- 3. 决定是否打印 --- */
-            if (frameHasData)
-            {
-                platformLog("--- SOF ---\r\n");
-                for (int i = 0; i < NUM_TARGETS; i++)
-                {
-                    /* 打印所有 Tag 状态，包括 MISS 的 */
-                    platformLog("Tag_%d | %s\r\n", i+1, printBuffer[i]);
-                }
-                platformLog("--- EOF ---\r\n");
-            }
-            else
-            {
-                /* 全是空的，什么都不打印，保持串口安静 */
-                // platformLog("."); // 调试用，证明系统还活着
-            }
-
-            platformDelay(50);
+        /* No NDEF text found: dump the raw memory as hex so nothing is lost */
+        if (!parsed)
+        {
+            platformLog("  RAW: %s\r\n", hex2Str(rawMemory, (size_t)memSize));
         }
     }
+    platformLog("--- EOF ---\r\n");
 }
 
 /*
@@ -219,28 +180,47 @@ static void demoNotif(rfalNfcState st)
 bool demoIni(void)
 {
     ReturnCode err;
-    err = rfalNfcInitialize();
-    if (err == RFAL_ERR_NONE)
+
+    /* --- SPI sanity check: read ST25R500 IC_ID directly before RFAL init --- */
+    /* SPI was already initialized by BSP_NFC0XCOMM_Init() before "Welcome".  */
     {
-        rfalNfcDefaultDiscParams(&discParam);
-        discParam.devLimit      = 1U;
-        discParam.techs2Find    = RFAL_NFC_POLL_TECH_V;
-        discParam.notifyCb      = demoNotif;
-        discParam.totalDuration = 1000U;
-
-        err = rfalNfcDiscover(&discParam);
-        if (err != RFAL_ERR_NONE) return false;
-
-        state = DEMO_ST_START_DISCOVERY;
-        return true;
+        uint8_t icid = 0xFFU;
+        st25r500ReadRegister(ST25R500_REG_IC_ID, &icid);
+        platformLog("[demoIni] IRQ pin(PA0) = %s\r\n",
+                    platformGpioIsHigh(ST25R_INT_PORT, ST25R_INT_PIN) ? "HIGH" : "low");
+        platformLog("[demoIni] ST25R500 IC_ID = 0x%02X (ST25R500 if (id & 0xF8)==0xB0)\r\n",
+                    icid);
+        if ((icid & 0xF8U) != 0xB0U)
+        {
+            platformLog("[demoIni] !! SPI/chip NOT responding (bad IC_ID). "
+                        "Check shield seating / SPI wiring.\r\n");
+        }
     }
-    return false;
+
+    platformLog("[demoIni] calling rfalNfcInitialize()...\r\n");
+    err = rfalNfcInitialize();
+    platformLog("[demoIni] rfalNfcInitialize ret=%d\r\n", (int)err);
+    if (err != RFAL_ERR_NONE)
+    {
+        return false;
+    }
+
+    /* Direct NFC-V poller mode: turn the RF field on and keep it on.
+     * We poll tags ourselves in demoCycle() via inventory + read, instead of
+     * relying on the rfalNfcDiscover()/notifyCb path (which never fired here). */
+    rfalNfcvPollerInitialize();
+    rfalFieldOnAndStartGT();
+    platformDelay(300);                 /* let field/tags settle */
+
+    platformLog(">>> NFC-V Read Mode ready (field ON)\r\n");
+    state = DEMO_ST_DISCOVERY;
+    return true;
 }
 
 void demoCycle(void)
 {
-    rfalNfcWorker();
-    if (state == DEMO_ST_START_DISCOVERY) state = DEMO_ST_DISCOVERY;
+    demoPollOnce();
+    platformDelay(200);
 }
 
 void demoStop(void)
