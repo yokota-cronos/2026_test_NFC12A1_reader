@@ -163,10 +163,20 @@ static void demoPollOnce(void)
             }
         }
 
-        /* No NDEF text found: dump the raw memory as hex so nothing is lost */
+        /* No NDEF text record: show the memory as readable ASCII (printable
+         * chars as-is, others as '.'), plus the raw hex so nothing is lost. */
         if (!parsed)
         {
-            platformLog("  RAW: %s\r\n", hex2Str(rawMemory, (size_t)memSize));
+            char ascii[RAW_MEMORY_SIZE + 1];
+            int  n = (memSize < RAW_MEMORY_SIZE) ? memSize : RAW_MEMORY_SIZE;
+            for (int j = 0; j < n; j++)
+            {
+                uint8_t c = rawMemory[j];
+                ascii[j] = (c >= 0x20 && c < 0x7F) ? (char)c : '.';
+            }
+            ascii[n] = '\0';
+            platformLog("  Data: %s\r\n", ascii);
+            platformLog("  RAW : %s\r\n", hex2Str(rawMemory, (size_t)memSize));
         }
     }
     platformLog("--- EOF ---\r\n");
