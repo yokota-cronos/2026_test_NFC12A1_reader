@@ -33,9 +33,8 @@
 /* Generic read: detect whatever NFC-V (ISO15693) tag is in the field via
  * inventory, then read it by its own UID. No hard-coded UID list needed. */
 #define MAX_DEVICES          5      /* max simultaneous tags to resolve */
-#define READ_BLOCKS          16
 #define BLOCK_SIZE           4
-#define RAW_MEMORY_SIZE      (READ_BLOCKS * BLOCK_SIZE)
+#define TAG_TOTAL_BLOCKS     128    /* ST25DV04K = 4 Kbit = 512 B = 128 blocks */
 
 /*
  ******************************************************************************
@@ -80,6 +79,156 @@ uint16_t demoGetDiscoverTotalDuration(void) { return discParam.totalDuration; }
  ******************************************************************************
  */
 
+/*
+ ******************************************************************************
+ * STEVAL-SMARTAG1 sensor-data decoder ("st.com:smartag" external record)
+ *
+ * Layout (SmarTag protocol V1, from ST STNFCSensor / SmarTagLib):
+ *   data base   = payload of the "st.com:smartag" NDEF external record
+ *   +0          : FW version block
+ *   +1..+4      : configuration (interval u16, mode u8, enabled-sensors u8, ...)
+ *   +0x0F       : sample-info block (nSample u16, nextWriteByteOffset u16)
+ *   +0x10..     : circular sample buffer, 2 blocks (8 bytes) per sample
+ *
+ * Sample (8 bytes): date(LE u32) + data(LE u32)
+ *   date bit31      : 1 = event sample, 0 = sensor sample; date = value & 0x7FFFFFFF
+ *   sensor data     : pressure=(d>>20)&0xFFF -> /10 +810 mbar  (0xFFF invalid)
+ *                     temperature=(d>>13)&0x7F -> -40 C        (0x7F  invalid)
+ *                     humidity=(d>>6)&0x7F -> +0 %             (0x7F  invalid)
+ *                     acceleration=d&0x3F -> *256 mg           (0x3F  invalid)
+ ******************************************************************************
+ */
+static uint16_t le16(const uint8_t *p) { return (uint16_t)(p[0] | (p[1] << 8)); }
+static uint32_t le32(const uint8_t *p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
+           ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+/* Decode and print one 8-byte sample. */
+static void decodeSmartagSample(int n, const uint8_t *s)
+{
+    uint32_t dateW = le32(s);
+    uint32_t data  = le32(s + 4);
+    uint32_t cv    = dateW & 0x7FFFFFFFu;
+
+    int year   = (int)((cv >> 26) & 0x3F) + 2018;
+    int month  = (int)((cv >> 17) & 0x0F);
+    int day    = (int)((cv >> 21) & 0x1F);
+    int hour   = (int)((cv >> 12) & 0x1F);
+    int minute = (int)((cv >> 6)  & 0x3F);
+    int second = (int)( cv        & 0x3F);
+
+    char ts[24];
+    snprintf(ts, sizeof(ts), "%04d-%02d-%02d %02d:%02d:%02d",
+             year, month, day, hour, minute, second);
+
+    if (dateW & 0x80000000u) /* event sample */
+    {
+        uint32_t orient = data & 0x07u;
+        uint32_t accEv  = (data >> 3) & 0x3Fu;
+        uint32_t accRaw = (data >> 9) & 0x3Fu;
+        platformLog("  #%d %s EVENT orient=%lu accEvents=0x%02lX",
+                    n, ts, (unsigned long)orient, (unsigned long)accEv);
+        if (accRaw != 0x3F) platformLog(" Acc=%lumg", (unsigned long)(accRaw * 256));
+        platformLog("\r\n");
+        return;
+    }
+
+    uint32_t pRaw = (data >> 20) & 0xFFFu;
+    uint32_t tRaw = (data >> 13) & 0x7Fu;
+    uint32_t hRaw = (data >> 6)  & 0x7Fu;
+    uint32_t aRaw =  data        & 0x3Fu;
+
+    platformLog("  #%d %s", n, ts);
+    if (tRaw != 0x7F)  platformLog(" T=%dC",      (int)tRaw - 40);
+    if (hRaw != 0x7F)  platformLog(" H=%lu%%",    (unsigned long)hRaw);
+    if (pRaw != 0xFFF) platformLog(" P=%lu.%lumbar",
+                                   (unsigned long)(pRaw / 10 + 810),
+                                   (unsigned long)(pRaw % 10));
+    if (aRaw != 0x3F)  platformLog(" Acc=%lumg",  (unsigned long)(aRaw * 256));
+    platformLog("\r\n");
+}
+
+/* Locate the "st.com:smartag" record and decode the logged samples. */
+static void decodeSmartag(const uint8_t *mem, int memLen)
+{
+    static const char TYPE[] = "st.com:smartag";
+    const int TLEN = (int)sizeof(TYPE) - 1;
+
+    int typeStart = -1;
+    for (int i = 0; i + TLEN <= memLen; i++)
+    {
+        if (memcmp(&mem[i], TYPE, (size_t)TLEN) == 0) { typeStart = i; break; }
+    }
+    if (typeStart < 1)
+    {
+        platformLog("  (no st.com:smartag record found)\r\n");
+        return;
+    }
+
+    /* FP-SNS-SMARTAG1 stores the UID as the record ID (IL=1): the byte right
+     * before the type field is the ID length. Payload follows type + id. */
+    int idLen       = mem[typeStart - 1];
+    int payloadBase = typeStart + TLEN + idLen;   /* data base (FW block) */
+    int dataBaseBlk = payloadBase / 4;
+    int cfgOff      = payloadBase + 4;            /* config block (+1) */
+    int siOff       = payloadBase + 0x0F * 4;     /* sample-info block (+0x0F) */
+
+    if (siOff + 4 > memLen)
+    {
+        platformLog("  (memory too short for SmarTag layout)\r\n");
+        return;
+    }
+
+    /* An unconfigured / never-logged tag has 0xDEADBEEF in these blocks. */
+    bool configured = (le32(&mem[cfgOff]) != 0xDEADBEEFu);
+
+    uint16_t interval   = le16(&mem[cfgOff]);
+    uint8_t  logMode    = mem[cfgOff + 2];
+    uint8_t  enSensors  = mem[cfgOff + 3];
+    uint16_t nSample    = configured ? le16(&mem[siOff]) : 0;
+    uint16_t nextByteOf = le16(&mem[siOff + 2]);
+
+    int firstSampleBlk = dataBaseBlk + 0x10;
+    int nextSampleBlk  = nextByteOf / 4;
+    int lastBlk        = memLen / 4 - 1;
+    int numMax         = (lastBlk - firstSampleBlk) / 2;
+    if (numMax < 1) numMax = 1;
+
+    if (!configured)
+    {
+        platformLog("  -> tag not configured / no sensor data logged yet "
+                    "(configure & start logging on the SMARTAG1 board)\r\n");
+        return;
+    }
+
+    platformLog("  [SmarTag] interval=%lumin mode=%lu sensors=0x%02lX maxSamples=%d\r\n",
+                (unsigned long)interval, (unsigned long)logMode,
+                (unsigned long)enSensors, numMax);
+    platformLog("  [SmarTag] nSample=%lu\r\n", (unsigned long)nSample);
+
+    if (nSample == 0)
+    {
+        platformLog("  -> no sensor samples logged yet "
+                    "(start logging on the SMARTAG1 board)\r\n");
+        return;
+    }
+    if (nSample > numMax) nSample = (uint16_t)numMax;
+
+    /* Oldest sample: if the ring is full it starts at the next write slot. */
+    int nextIdx  = (nextSampleBlk - firstSampleBlk) / 2;
+    int startIdx = (nSample >= numMax) ? nextIdx : 0;
+
+    for (int k = 0; k < nSample; k++)
+    {
+        int idx = (startIdx + k) % numMax;
+        int off = (firstSampleBlk + idx * 2) * 4;
+        if (off + 8 > memLen) break;
+        decodeSmartagSample(k + 1, &mem[off]);
+    }
+}
+
 /* One polling pass: inventory any NFC-V tag(s) in the field, read & print.
  * The RF field is left ON by demoIni and stays on; called every demoCycle(). */
 static void demoPollOnce(void)
@@ -114,70 +263,32 @@ static void demoPollOnce(void)
         }
         platformLog("Tag_%d UID=%s\r\n", i + 1, uidStr);
 
-        /* Read 16 blocks (64 bytes) addressed by this tag's own UID */
-        uint8_t  rxBuf[1 + RAW_MEMORY_SIZE + RFAL_CRC_LEN];
-        uint16_t rcvLen = 0;
-
-        err = rfalNfcvPollerReadMultipleBlocks(
-                  RFAL_NFCV_REQ_FLAG_DEFAULT, uid,
-                  0, READ_BLOCKS - 1, rxBuf, sizeof(rxBuf), &rcvLen);
-        if (err != RFAL_ERR_NONE) /* retry once */
+        /* Read the whole tag memory (ST25DV04K = 128 blocks / 512 B) in
+         * 8-block chunks, then decode the STEVAL-SMARTAG1 sensor log. */
+        static uint8_t mem[TAG_TOTAL_BLOCKS * BLOCK_SIZE];
+        int            memLen = 0;
+        for (int b = 0; b < TAG_TOTAL_BLOCKS; b += 8)
         {
+            uint8_t  buf[1 + (8 * BLOCK_SIZE) + RFAL_CRC_LEN];
+            uint16_t rl = 0;
             err = rfalNfcvPollerReadMultipleBlocks(
                       RFAL_NFCV_REQ_FLAG_DEFAULT, uid,
-                      0, READ_BLOCKS - 1, rxBuf, sizeof(rxBuf), &rcvLen);
+                      (uint8_t)b, 7, buf, sizeof(buf), &rl);
+            if (err != RFAL_ERR_NONE || rl < (1 + 8 * BLOCK_SIZE))
+            {
+                break; /* shorter tag or read error: stop, use what we have */
+            }
+            memcpy(&mem[b * BLOCK_SIZE], &buf[1], 8 * BLOCK_SIZE);
+            memLen = b * BLOCK_SIZE + 8 * BLOCK_SIZE;
         }
 
-        if (err != RFAL_ERR_NONE || rcvLen <= 1)
+        if (memLen < 64)
         {
-            platformLog("  read failed (err=%d)\r\n", (int)err);
+            platformLog("  read failed (err=%d, got %dB)\r\n", (int)err, memLen);
             continue;
         }
 
-        /* Try to parse an NDEF Text record (D1 01 xx 54) */
-        uint8_t *rawMemory = &rxBuf[1];
-        int      memSize    = rcvLen - 1;
-        bool     parsed     = false;
-
-        for (int idx = 0; idx < memSize - 6; idx++)
-        {
-            if (rawMemory[idx] == 0xD1 && rawMemory[idx + 1] == 0x01 &&
-                rawMemory[idx + 3] == 0x54)
-            {
-                uint8_t payloadLen = rawMemory[idx + 2];
-                uint8_t statusByte = rawMemory[idx + 4];
-                int     langLen    = statusByte & 0x1F;
-                int     textStart  = idx + 5 + langLen;
-                int     textLen    = payloadLen - 1 - langLen;
-
-                if (textLen > 0 && textLen < 64 &&
-                    (textStart + textLen) <= memSize)
-                {
-                    char parsedData[64] = {0};
-                    memcpy(parsedData, &rawMemory[textStart], textLen);
-                    parsedData[textLen] = '\0';
-                    platformLog("  Text: %s\r\n", parsedData);
-                    parsed = true;
-                    break;
-                }
-            }
-        }
-
-        /* No NDEF text record: show the memory as readable ASCII (printable
-         * chars as-is, others as '.'), plus the raw hex so nothing is lost. */
-        if (!parsed)
-        {
-            char ascii[RAW_MEMORY_SIZE + 1];
-            int  n = (memSize < RAW_MEMORY_SIZE) ? memSize : RAW_MEMORY_SIZE;
-            for (int j = 0; j < n; j++)
-            {
-                uint8_t c = rawMemory[j];
-                ascii[j] = (c >= 0x20 && c < 0x7F) ? (char)c : '.';
-            }
-            ascii[n] = '\0';
-            platformLog("  Data: %s\r\n", ascii);
-            platformLog("  RAW : %s\r\n", hex2Str(rawMemory, (size_t)memSize));
-        }
+        decodeSmartag(mem, memLen);
     }
     platformLog("--- EOF ---\r\n");
 }
@@ -230,7 +341,7 @@ bool demoIni(void)
 void demoCycle(void)
 {
     demoPollOnce();
-    platformDelay(200);
+    platformDelay(1000);
 }
 
 void demoStop(void)
