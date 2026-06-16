@@ -266,7 +266,10 @@ static void demoPollOnce(void)
 
     if (err != RFAL_ERR_NONE || devCnt == 0)
     {
-        return; /* No tag in field: stay quiet */
+        /* No tag in field: emit a heartbeat so the serial monitor always
+         * shows the reader is alive and waiting for a tag. */
+        platformLog("(waiting for tag...)\r\n");
+        return;
     }
 
     /* --- 2. For each detected tag: print UID, read memory, parse --- */
