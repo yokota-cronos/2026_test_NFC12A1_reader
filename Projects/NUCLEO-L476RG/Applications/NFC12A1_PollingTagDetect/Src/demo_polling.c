@@ -252,69 +252,79 @@ static void decodeSmartag(const uint8_t *mem, int memLen)
     }
 }
 
-/* One polling pass: inventory any NFC-V tag(s) in the field, read & print.
+/* One polling pass: inventory the NFC-V tag in the field, read & decode it,
+ * but only print when the content changes (new tag, or new logged data) so
+ * the serial monitor isn't flooded with the same samples every cycle.
  * The RF field is left ON by demoIni and stays on; called every demoCycle(). */
 static void demoPollOnce(void)
 {
+    static bool     hadTag = false;
+    static char     lastUid[3 * RFAL_NFCV_UID_LEN] = "";
+    static uint32_t lastSig = 0;
+
     rfalNfcvListenDevice devList[MAX_DEVICES];
     uint8_t              devCnt = 0;
     ReturnCode           err;
 
-    /* --- 1. Inventory: find whatever NFC-V tag(s) are present --- */
+    /* --- 1. Inventory: find any NFC-V tag(s) present --- */
     err = rfalNfcvPollerCollisionResolution(
               RFAL_COMPLIANCE_MODE_NFC, MAX_DEVICES, devList, &devCnt);
 
     if (err != RFAL_ERR_NONE || devCnt == 0)
     {
-        /* No tag in field: emit a heartbeat so the serial monitor always
-         * shows the reader is alive and waiting for a tag. */
-        platformLog("(waiting for tag...)\r\n");
+        if (hadTag) /* report removal once, then stay quiet */
+        {
+            platformLog("(no tag)\r\n");
+            hadTag = false; lastUid[0] = '\0'; lastSig = 0;
+        }
         return;
     }
 
-    /* --- 2. For each detected tag: print UID, read memory, parse --- */
-    platformLog("--- SOF (%d tag) ---\r\n", devCnt);
-    for (int i = 0; i < devCnt; i++)
+    /* Use the first tag for change detection (single-tag use case). */
+    uint8_t *uid = devList[0].InvRes.UID;
+    char uidStr[3 * RFAL_NFCV_UID_LEN];
+    int  p = 0;
+    for (int k = RFAL_NFCV_UID_LEN - 1; k >= 0; k--)
     {
-        /* InvRes.UID is in transmitted order (LSB first, UID[7]=0xE0).
-         * Print it MSB-first to match the way UIDs are usually written. */
-        uint8_t *uid = devList[i].InvRes.UID;
-        char uidStr[3 * RFAL_NFCV_UID_LEN];
-        int p = 0;
-        for (int k = RFAL_NFCV_UID_LEN - 1; k >= 0; k--)
-        {
-            p += snprintf(&uidStr[p], sizeof(uidStr) - p,
-                          (k == RFAL_NFCV_UID_LEN - 1) ? "%02X" : ":%02X",
-                          uid[k]);
-        }
-        platformLog("Tag_%d UID=%s\r\n", i + 1, uidStr);
+        p += snprintf(&uidStr[p], sizeof(uidStr) - p,
+                      (k == RFAL_NFCV_UID_LEN - 1) ? "%02X" : ":%02X", uid[k]);
+    }
 
-        /* Read the whole tag memory (ST25DV04K = 128 blocks / 512 B) in
-         * 8-block chunks, then decode the STEVAL-SMARTAG1 sensor log. */
-        static uint8_t mem[TAG_TOTAL_BLOCKS * BLOCK_SIZE];
-        int            memLen = 0;
-        for (int b = 0; b < TAG_TOTAL_BLOCKS; b += 8)
-        {
-            uint8_t  buf[1 + (8 * BLOCK_SIZE) + RFAL_CRC_LEN];
-            uint16_t rl = 0;
-            err = rfalNfcvPollerReadMultipleBlocks(
-                      RFAL_NFCV_REQ_FLAG_DEFAULT, uid,
-                      (uint8_t)b, 7, buf, sizeof(buf), &rl);
-            if (err != RFAL_ERR_NONE || rl < (1 + 8 * BLOCK_SIZE))
-            {
-                break; /* shorter tag or read error: stop, use what we have */
-            }
-            memcpy(&mem[b * BLOCK_SIZE], &buf[1], 8 * BLOCK_SIZE);
-            memLen = b * BLOCK_SIZE + 8 * BLOCK_SIZE;
-        }
+    /* Read the whole tag memory (ST25DV04K = 128 blocks / 512 B). */
+    static uint8_t mem[TAG_TOTAL_BLOCKS * BLOCK_SIZE];
+    int            memLen = 0;
+    for (int b = 0; b < TAG_TOTAL_BLOCKS; b += 8)
+    {
+        uint8_t  buf[1 + (8 * BLOCK_SIZE) + RFAL_CRC_LEN];
+        uint16_t rl = 0;
+        err = rfalNfcvPollerReadMultipleBlocks(
+                  RFAL_NFCV_REQ_FLAG_DEFAULT, uid,
+                  (uint8_t)b, 7, buf, sizeof(buf), &rl);
+        if (err != RFAL_ERR_NONE || rl < (1 + 8 * BLOCK_SIZE)) break;
+        memcpy(&mem[b * BLOCK_SIZE], &buf[1], 8 * BLOCK_SIZE);
+        memLen = b * BLOCK_SIZE + 8 * BLOCK_SIZE;
+    }
+    if (memLen < 64) return; /* transient read error: skip this pass */
 
-        if (memLen < 64)
-        {
-            platformLog("  read failed (err=%d, got %dB)\r\n", (int)err, memLen);
-            continue;
-        }
+    /* Signature over the whole memory (FNV-1a) to detect changes. */
+    uint32_t sig = 2166136261u;
+    for (int i = 0; i < memLen; i++) { sig ^= mem[i]; sig *= 16777619u; }
 
-        decodeSmartag(mem, memLen);
+    /* Same tag and same data as last printed pass -> don't repeat. */
+    if (hadTag && sig == lastSig && strcmp(uidStr, lastUid) == 0) return;
+
+    hadTag  = true;
+    lastSig = sig;
+    strncpy(lastUid, uidStr, sizeof(lastUid) - 1);
+    lastUid[sizeof(lastUid) - 1] = '\0';
+
+    /* Content changed (tag placed or new data): print it once. */
+    platformLog("--- SOF (%d tag) ---\r\n", devCnt);
+    platformLog("Tag_1 UID=%s\r\n", uidStr);
+    decodeSmartag(mem, memLen);
+    if (devCnt > 1)
+    {
+        platformLog("  (+%d more tag(s) present)\r\n", devCnt - 1);
     }
     platformLog("--- EOF ---\r\n");
 }
