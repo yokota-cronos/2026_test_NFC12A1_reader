@@ -167,10 +167,33 @@ static void decodeSmartag(const uint8_t *mem, int memLen)
         return;
     }
 
-    /* FP-SNS-SMARTAG1 stores the UID as the record ID (IL=1): the byte right
-     * before the type field is the ID length. Payload follows type + id. */
-    int idLen       = mem[typeStart - 1];
-    int payloadBase = typeStart + TLEN + idLen;   /* data base (FW block) */
+    /* Parse the NDEF record header that precedes the type field to locate the
+     * payload. The header byte position depends on SR (1- vs 4-byte payload
+     * length) and IL (presence of an ID-length byte), so try each combination
+     * and keep the one whose flags (TNF=external) and type length are valid. */
+    int payloadBase = -1;
+    for (int sr = 0; sr <= 1 && payloadBase < 0; sr++)
+    {
+        for (int il = 0; il <= 1; il++)
+        {
+            int plBytes = sr ? 1 : 4;
+            int fpos    = typeStart - (2 + plBytes + (il ? 1 : 0));
+            if (fpos < 0) continue;
+            uint8_t flags = mem[fpos];
+            if ((flags & 0x07) != 0x04) continue;        /* TNF = external      */
+            if (((flags >> 4) & 1) != sr)  continue;      /* SR bit must match   */
+            if (((flags >> 3) & 1) != il)  continue;      /* IL bit must match   */
+            if (mem[fpos + 1] != TLEN)     continue;      /* type length = 14    */
+            int idLen   = il ? mem[fpos + 2 + plBytes] : 0;
+            payloadBase = typeStart + TLEN + idLen;       /* data base (FW block)*/
+            break;
+        }
+    }
+    if (payloadBase < 0 || payloadBase % 4 != 0)
+    {
+        platformLog("  (could not parse SmarTag NDEF header)\r\n");
+        return;
+    }
     int dataBaseBlk = payloadBase / 4;
     int cfgOff      = payloadBase + 4;            /* config block (+1) */
     int siOff       = payloadBase + 0x0F * 4;     /* sample-info block (+0x0F) */
